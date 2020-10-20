@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from entries import get_all_entries, get_single_entry, delete_entry
+from moods import get_all_moods, get_single_mood
 
 
 # Here's a class. It inherits from another class.
@@ -54,6 +55,13 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             else:
                 response = f"{get_all_entries()}"
+        
+        elif resource == "moods":
+            if id is not None:
+                response = f"{get_single_mood(id)}"
+            
+            else:
+                response = f"{get_all_moods()}"
 
         self.wfile.write(response.encode())
 
