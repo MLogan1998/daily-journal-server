@@ -1,6 +1,8 @@
+import json
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from entries import get_all_entries, get_single_entry, delete_entry, get_entry_by_keyword
+from entries import get_all_entries, get_single_entry, delete_entry, get_entry_by_keyword, create_entry
 from moods import get_all_moods, get_single_mood
 
 
@@ -17,7 +19,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With, content-type')
         self.end_headers()
 
 
@@ -58,12 +60,18 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_POST(self):
 
         self._set_headers(201)
-
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        response = f"received post request:<br>{post_body}"
-        self.wfile.write(response.encode())
+       
+        post_body = json.loads(post_body)
 
+        (resource, id) = self.parse_url(self.path)
+
+        new_entry = None
+       
+        if resource == "entries":
+           new_entry = create_entry(post_body)
+           self.wfile.write(f"{new_entry}".encode())
 
 
     def do_PUT(self):
