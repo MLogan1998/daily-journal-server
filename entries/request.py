@@ -35,6 +35,7 @@ def get_all_entries():
 
     return json.dumps(entries)
 
+
 def get_single_entry(id):
     with sqlite3.connect("./dailyjournal.db") as conn:
         conn.row_factory = sqlite3.Row 
@@ -99,6 +100,7 @@ def get_entry_by_keyword(keyword):
 
     return json.dumps(entries)
 
+
 def create_entry(new_entry):
     with sqlite3.connect("./dailyjournal.db") as conn:
         db_cursor = conn.cursor()
@@ -115,3 +117,25 @@ def create_entry(new_entry):
         new_entry['id'] = id
 
     return json.dumps(new_entry)
+
+
+def update_entry(id, new_entry):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE Entries
+            SET
+                concept = ?,
+                entry = ?,
+                date = ?,
+                moodId = ?
+        WHERE id = ?
+        """, (new_entry['concept'], new_entry['entry'], new_entry['date'], new_entry['moodId'], id, ))
+
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        return False
+    else:
+        return True
